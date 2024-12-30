@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1096588133537",
+    "project_id": "quocan-project",
+    "storage_bucket": "quocan-project.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1096588133537:android:c5c322b83cba1ace29dce0",
+        "android_client_info": {
+          "package_name": "com.example.admin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXYhfssj7n1wUEsB2vZiAqKDGz9VmO8Zc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1096588133537:android:b270eb6addf24dce29dce0",
+        "android_client_info": {
+          "package_name": "com.example.sneakerstore_client"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXYhfssj7n1wUEsB2vZiAqKDGz9VmO8Zc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
