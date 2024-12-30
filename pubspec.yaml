@@ -16,6 +16,7 @@ dependencies:
   firebase_core: ^3.9.0
   cloud_firestore: ^5.6.0
   get_storage: ^2.1.1
+
   flutter:
     sdk: flutter
 
@@ -23,6 +24,8 @@ dependencies:
   cupertino_icons: ^1.0.8
 
 dev_dependencies:
+  build_runner: ^2.4.6
+  json_serializable: ^6.9.2
   flutter_test:
     sdk: flutter
 
