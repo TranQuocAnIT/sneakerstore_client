@@ -39,7 +39,10 @@ class LoginPage extends StatelessWidget {
                 fillColor: Colors.grey[100],
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide.none,
+                  borderSide: const BorderSide(
+                    color: Colors.blue, // Màu viền bo
+                    width: 2.0, // Độ dày của viền
+                  ),
                 ),
                 prefixIcon: const Icon(Icons.phone_android),
                 labelText: 'Phone Number',
