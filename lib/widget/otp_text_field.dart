@@ -4,7 +4,8 @@ import 'package:otp_text_field_v2/otp_field_v2.dart';
 class OtpTextField extends StatelessWidget {
   final OtpFieldControllerV2 otpController;
   final bool isVisible;
-  const OtpTextField({super.key, required this.otpController, required this.isVisible});
+  final Function (String?) onCompleted;
+  const OtpTextField({super.key, required this.otpController, required this.isVisible, required this.onCompleted});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +24,7 @@ class OtpTextField extends StatelessWidget {
           print("Changed: " + pin);
         },
         onCompleted: (pin) {
-          print("Completed: " + pin);
+          onCompleted(pin);
         },
       ),
     );

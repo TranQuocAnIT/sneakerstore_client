@@ -13,12 +13,16 @@ class User {
   @JsonKey(name: "phonenumber")
   int? phonenumber;
 
+  @JsonKey(name: "password")
+  String? password;
 
 
   User({
     this.id,
     this.name,
     this.phonenumber,
+    this.password,
+
   });
   factory User.fromJson(Map<String,dynamic> json) => _$UserFromJson(json);
   Map<String, dynamic> toJson() => _$UserToJson(this);

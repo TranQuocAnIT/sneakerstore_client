@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sneakerstore_client/pages/login_page.dart';
 import 'package:sneakerstore_client/widget/otp_text_field.dart';
 
 import '../controller/login_controller.dart';
@@ -45,11 +46,7 @@ class RegisterPage extends StatelessWidget {
                       fillColor: Colors.grey[100],
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                          color: Colors.blue, // Màu viền bo
-                          width: 2.0, // Độ dày của viền
-                        ),
-
+                        borderSide: const BorderSide(color: Colors.blue, width: 2.0),
                       ),
                       prefixIcon: const Icon(Icons.person_outline),
                       labelText: 'Full Name',
@@ -65,30 +62,48 @@ class RegisterPage extends StatelessWidget {
                       fillColor: Colors.grey[100],
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                          color: Colors.blue, // Màu viền bo
-                          width: 2.0, // Độ dày của viền
-                        ),
+                        borderSide: const BorderSide(color: Colors.blue, width: 2.0),
                       ),
                       prefixIcon: const Icon(Icons.phone_android),
                       labelText: 'Phone Number',
                       hintText: 'Enter your phone number',
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    obscureText: true, // Ẩn nội dung nhập
+                    controller: ctrl.signupPasswordCtrl,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Colors.blue, width: 2.0),
+                      ),
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      labelText: 'Password',
+                      hintText: 'Enter your password',
+                    ),
+                  ),
                   const SizedBox(height: 24),
-                  OtpTextField(otpController: ctrl.otpController, isVisible: ctrl.otpFieldShown,),
+                  OtpTextField(
+                    otpController: ctrl.otpController,
+                    isVisible: ctrl.otpFieldShown,
+                    onCompleted: (otp) {
+                      ctrl.otpEntered = int.tryParse(otp ?? '0000');
+                    },
+                  ),
                   const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
                       onPressed: () {
-                        if(ctrl.otpFieldShown){
-                            ctrl.addUser();
-                        }else{
+                        if (ctrl.otpFieldShown) {
+                          ctrl.addUser();
+                        } else {
                           ctrl.senderOtp();
                         }
-
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
@@ -98,7 +113,7 @@ class RegisterPage extends StatelessWidget {
                       ),
                       child: Text(
                         ctrl.otpFieldShown ? 'Đăng kí ' : 'Gửi mã OTP',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -115,7 +130,7 @@ class RegisterPage extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: () {
-                          ctrl.addUser();
+                          Get.to(const LoginPage());
                         },
                         style: TextButton.styleFrom(
                           foregroundColor: Colors.black,
