@@ -9,6 +9,7 @@ import 'package:sneakerstore_client/pages/register_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'controller/login_controller.dart';
+import 'controller/purchase_controller.dart';
 import 'firebaseOption.dart';
 void main() async {
   await GetStorage.init();
@@ -16,6 +17,7 @@ void main() async {
   await Firebase.initializeApp(options: firebaseOptions);
   Get.put(LoginController());
   Get.put(HomeController());
+  Get.put(PurchaseController());
   runApp(const MyApp());
 }
 
