@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../controller/purchase_controller.dart';
 import '../model/product/product.dart';
 
@@ -11,6 +12,7 @@ class ProductDescriptionPage extends StatelessWidget {
     final Product product = Get.arguments['data'];
 
     return GetBuilder<PurchaseController>(
+
       initState: (state) {
         Get.find<PurchaseController>().initProduct(product);
       },
@@ -29,6 +31,13 @@ class ProductDescriptionPage extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.9),
                       shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: const Icon(Icons.arrow_back, color: Colors.black),
                   ),
@@ -58,6 +67,7 @@ class ProductDescriptionPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Original Product Name and Price Layout
                         Text(
                           product.name ?? 'Product Name',
                           style: const TextStyle(
@@ -73,8 +83,53 @@ class ProductDescriptionPage extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 24),
 
+                        // Rating Section
+                        Row(
+                          children: [
+                            Row(
+                              children: List.generate(
+                                5,
+                                    (index) => Icon(
+                                  Icons.star,
+                                  size: 20,
+                                  color: index < 4 ? Colors.amber : Colors.grey[300],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '4.0 (245 reviews)',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Description Section
+                        const Text(
+                          'Description',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          product.description ?? 'No description available',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                            height: 1.5,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Original Size Selection Layout
                         const Text(
                           'Select Size',
                           style: TextStyle(
@@ -119,6 +174,7 @@ class ProductDescriptionPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 24),
 
+                        // Original Quantity Selection Layout
                         const Text(
                           'Select Quantity',
                           style: TextStyle(
@@ -149,12 +205,91 @@ class ProductDescriptionPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 24),
 
+                        // Original Total Price Layout
                         Text(
                           'Total Price: \$${ctrl.totalPrice}',
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Reviews Section
+                        const Text(
+                          'Customer Reviews',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: ctrl.comments.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 16),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[50],
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      CircleAvatar(
+                                        child: Image.network(
+                                          'https://cdn-icons-png.flaticon.com/128/16683/16683451.png',
+                                          fit: BoxFit.cover,
+                                        ),
+
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            ctrl.comments[index].customerName ?? '' ,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Row(
+                                            children: List.generate(
+                                              5,
+                                                  (starIndex) => Icon(
+                                                Icons.star,
+                                                size: 16,
+                                                color: starIndex < (4 - index)
+                                                    ? Colors.amber
+                                                    : Colors.grey[300],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    ctrl.comments[index].message?? '' ,
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      height: 1.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                        TextButton(
+                          onPressed: () {},
+                          child: const Text('View All Reviews'),
                         ),
                         const SizedBox(height: 100),
                       ],
@@ -164,6 +299,7 @@ class ProductDescriptionPage extends StatelessWidget {
               ),
             ],
           ),
+          // Original Bottom Navigation Bar Layout
           bottomNavigationBar: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(

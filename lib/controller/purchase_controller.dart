@@ -2,16 +2,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sneakerstore_client/controller/login_controller.dart';
+
+import '../../pages/home_page.dart';
+import '../model/comment/comment.dart';
+import '../model/orders/order.dart';
 import '../model/product/product.dart';
-import '../model/user/user.dart';
-import '../pages/home_page.dart';
 import '../pages/payment_page.dart';
+ // Import model Orders
 
 class PurchaseController extends GetxController {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   late CollectionReference orderCollection;
   TextEditingController addressController = TextEditingController();
-
+  late CollectionReference commentCollection;
   // Product details
   Product? selectedProduct;
   String size = '';
@@ -20,11 +23,14 @@ class PurchaseController extends GetxController {
   String image = '';
   // Order information
   String orderAddress = '';
-
+  List<Comment> comments = [];
   @override
-  void onInit() {
+
+  Future<void> onInit() async {
     orderCollection = firestore.collection('orders');
+    commentCollection = firestore.collection('comments');
     super.onInit();
+    await fetchComments();
   }
 
   void initProduct(Product product) {
@@ -82,7 +88,13 @@ class PurchaseController extends GetxController {
   }
 
   Future<void> submitOrder() async {
-    User? loginUser = Get.find<LoginController>().LoginUser;
+    final loginController = Get.find<LoginController>();
+
+    // Kiểm tra đăng nhập
+    if (!loginController.isLoggedIn) {
+      Get.snackbar('Lưu ý', 'Vui lòng đăng nhập để đặt hàng', colorText: Colors.orange);
+      return;
+    }
 
     if (orderAddress.isEmpty) {
       Get.snackbar('Lưu ý', 'Vui lòng nhập địa chỉ giao hàng', colorText: Colors.orange);
@@ -90,29 +102,134 @@ class PurchaseController extends GetxController {
     }
 
     try {
-      await orderCollection.add({
+      final user = loginController.LoginUser!; // Sử dụng ! vì đã kiểm tra null
 
-        'customerId': loginUser?.id,
-        'customerName': loginUser?.name ?? '',
-        'phoneNumber': loginUser?.phonenumber ?? '',
-        'productId': selectedProduct?.id,
-        'productName': selectedProduct?.name ?? '',
-        'image': selectedProduct?.image ?? '',
-        'size': size,
-        'quantity': quantity,
-        'price': selectedProduct?.price ?? 0,
-        'totalPrice': totalPrice,
-        'address': orderAddress,
-        'orderDate': DateTime.now(),
-        'status': 'Sucessful'
+      Orders order = Orders(
+        customerId: user.id,
+        customerName: user.name,
+        phoneNumber: user.phonenumber.toString(),
+        productId: selectedProduct?.id,
+        productName: selectedProduct?.name ?? '',
+        image: selectedProduct?.image ?? '',
+        size: size,
+        quantity: quantity,
+        price: selectedProduct?.price ?? 0,
+        totalPrice: totalPrice,
+        address: orderAddress,
+        orderDate: DateTime.now(),
+        status: 'Order successful', // Có thể đổi thành 'Pending' thay vì 'Successful'
+      );
+
+      await orderCollection.add({
+        ...order.toJson(),
+        'orderDate': Timestamp.fromDate(order.orderDate!),
       });
 
       Get.snackbar('Thành công', 'Đặt hàng thành công', colorText: Colors.green);
-      Get.to(HomePage()); // Về trang chủ sau khi đặt hàng
+      Get.offAll(() => const HomePage()); // Sử dụng offAll để xóa stack điều hướng
 
     } catch (e) {
       print(e);
       Get.snackbar('Lỗi', 'Đặt hàng thất bại', colorText: Colors.red);
+    }
+  }
+  Future<void> cancelOrder(String orderId) async {
+    try {
+      await firestore.collection('orders').doc(orderId).update({
+        'status': 'Đã hủy'
+      });
+      Get.snackbar(
+        'Thành công',
+        'Đã hủy đơn hàng',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.withOpacity(0.1),
+        colorText: Colors.green,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Lỗi',
+        'Không thể hủy đơn hàng: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withOpacity(0.1),
+        colorText: Colors.red,
+      );
+    }
+  }
+  Future<void> confirmOrderReceived(String orderId) async {
+    try {
+      await firestore.collection('orders').doc(orderId).update({
+        'status': 'Đã nhận hàng'
+      });
+      Get.snackbar(
+        'Thành công',
+        'Đã xác nhận nhận được hàng',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.withOpacity(0.1),
+        colorText: Colors.green,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Lỗi',
+        'Không thể xác nhận đơn hàng: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withOpacity(0.1),
+        colorText: Colors.red,
+      );
+    }
+  }
+  Future<void> submitComment(String orderId, String message, Map<String, dynamic> orderData) async {
+    try {
+      Comment comment = Comment(
+        customerId: orderData['customerId'],
+        customerName: orderData['customerName'],
+        productId: orderData['productId'],
+        productName: orderData['productName'],
+        orderId: orderId,
+        totalPrice: orderData['totalPrice'],
+        message: message,
+        createdAt: DateTime.now(),
+      );
+
+      await firestore.collection('comments').add(comment.toJson());
+
+      // Cập nhật trạng thái đã comment của order
+      await firestore.collection('orders').doc(orderId).update({
+        'hasComment': true
+      });
+
+      Get.back(); // Đóng dialog
+      Get.snackbar(
+        'Thành công',
+        'Đã gửi đánh giá sản phẩm',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.withOpacity(0.1),
+        colorText: Colors.green,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Lỗi',
+        'Không thể gửi đánh giá: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withOpacity(0.1),
+        colorText: Colors.red,
+      );
+    }
+  }
+  fetchComments() async {
+    try {
+      QuerySnapshot commentSnapshot = await commentCollection.get();
+      final List<Comment> retrivedComments = commentSnapshot.docs
+          .map((doc) =>
+          Comment.fromJson(doc.data() as Map<String, dynamic>))
+          .toList();
+      comments.clear();
+      comments.assignAll(retrivedComments);
+
+    } catch (e) {
+      Get.snackbar('Lổi', e.toString(), colorText: Colors.red);
+      print(e);
+    } finally {
+      update();
     }
   }
 }

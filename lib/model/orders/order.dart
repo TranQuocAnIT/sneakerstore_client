@@ -60,8 +60,8 @@ class Orders {
   });
 
   // Factory method for JSON deserialization
-  factory Orders.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);
+  factory Orders.fromJson(Map<String, dynamic> json) => _$OrdersFromJson(json);
 
   // Method for JSON serialization
-  Map<String, dynamic> toJson() => _$OrderToJson(this);
+  Map<String, dynamic> toJson() => _$OrdersToJson(this);
 }

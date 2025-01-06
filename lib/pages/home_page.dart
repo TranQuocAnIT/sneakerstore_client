@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:sneakerstore_client/controller/home_controller.dart';
-import 'package:sneakerstore_client/pages/product_description_page.dart';
-import 'package:sneakerstore_client/widget/drop_down_buton.dart';
-import 'package:sneakerstore_client/widget/multi_select_drop_down.dart';
-import 'package:sneakerstore_client/widget/product_widget.dart';
-import 'login_page.dart';
+
+import '../controller/home_controller.dart';
+import '../controller/login_controller.dart';
+import 'orders_history_page.dart';
+import 'product_view.dart';
+import 'profile_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,375 +17,298 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        Get.to(() => HomePage());
+        break;
+      case 1:
+        Get.to(() => ProductPage()); // Navigate to ProductView for search/products
+        break;
+      case 2:
+        Get.to(() => OrderHistoryView());
+        break;
+      case 3:
+        Get.to(() => ProfilePage());
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<HomeController>(builder: (ctrl) {
-      return RefreshIndicator(
-        onRefresh: () async {
-          ctrl.fetchProducts();
-        },
-        child: Scaffold(
+    return GetBuilder<HomeController>(
+      builder: (ctrl) {
+        return Scaffold(
           backgroundColor: Colors.grey[50],
-          appBar: AppBar(
-            elevation: 0,
-            backgroundColor: Colors.white,
-            leading: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: CircleAvatar(
-                backgroundColor: Colors.grey[100],
-                child: const Icon(Icons.menu, color: Colors.black87),
-              ),
-            ),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          appBar: _buildAppBar(),
+          body: SingleChildScrollView(
+            child: Column(
               children: [
-                const Text(
-                  'Sneaker Store',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    color: Colors.black87,
-                  ),
-                ),
-                Text(
-                  'Find your perfect pair',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
-                ),
+                _buildBanner(),
               ],
             ),
-            actions: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: CircleAvatar(
-                  backgroundColor: Colors.grey[100],
-                  child: IconButton(
-                    onPressed: () {
-                      final box = GetStorage();
-                      box.erase();
-                      Get.offAll(LoginPage());
-                    },
-                    icon: const Icon(Icons.logout, color: Colors.black54),
-                  ),
-                ),
-              ),
-            ],
           ),
-          body: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: Column(
-                  children: [
-                    // Search Bar
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Container(
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(25),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: TextField(
-                          decoration: InputDecoration(
-                            hintText: 'Search sneakers...',
-                            hintStyle: TextStyle(color: Colors.grey[400]),
-                            prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 15),
-                          ),
-                        ),
-                      ),
-                    ),
+          bottomNavigationBar: _buildBottomNav(),
+        );
+      },
+    );
+  }
 
-                    // Categories
-                    Container(
-                      height: 65,
-                      margin: const EdgeInsets.only(bottom: 16),
-                      child: ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        scrollDirection: Axis.horizontal,
-                        itemCount: ctrl.productcategories.length,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            margin: const EdgeInsets.only(right: 12),
-                            child: Material(
-                              elevation: 2,
-                              borderRadius: BorderRadius.circular(25),
-                              child: InkWell(
-                                onTap: () {
-                                  ctrl.filterByCategory(
-                                      ctrl.productcategories[index].name ?? '');
-                                },
-                                borderRadius: BorderRadius.circular(25),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 24, vertical: 12),
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [
-                                        Color(0xFF1E1E1E),
-                                        Color(0xFF3E3E3E),
-                                      ],
-                                    ),
-                                    borderRadius: BorderRadius.circular(25),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.category_outlined,
-                                        color: Colors.white.withOpacity(0.9),
-                                        size: 20,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        ctrl.productcategories[index].name ??
-                                            'Error',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-
-                    // Filters
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(15),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: DropDownBtn(
-                                items: const [
-                                  'Giá cao đến thấp',
-                                  'Giá Thấp đến cao'
-                                ],
-                                selectedItemText: 'Lọc theo giá',
-                                onSelected: (selected) {
-                                  ctrl.sortByPrice(
-                                      ascending: selected == 'Giá Thấp đến cao'
-                                          ? true
-                                          : false);
-                                },
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(15),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: MultiSelectDropDown(
-                                items: [
-                                  'Adidas',
-                                  'New Balance',
-                                  'Timberland',
-                                  'Vans',
-                                  'Nike',
-                                  'Converse'
-                                ],
-                                onSelectionChanged: (selectedItems) {
-                                  ctrl.filterByBrand(selectedItems);
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Products Grid
-              SliverPadding(
-                padding: const EdgeInsets.all(16),
-                sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.75,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                  ),
-                  delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                      return ProductWidget(
-                        name: ctrl.productShowinUI[index].name ?? 'Không tên',
-                        imageUrl:
-                        ctrl.productShowinUI[index].image ?? 'Không tên',
-                        price: ctrl.productShowinUI[index].price ?? 0,
-                        offer: '30% off',
-                        onTap: () {
-                          Get.to(ProductDescriptionPage(),
-                              arguments: {'data': ctrl.productShowinUI[index]});
-                        },
-                      );
-                    },
-                    childCount: ctrl.productShowinUI.length,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          bottomNavigationBar: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.07),
-                  blurRadius: 20,
-                  offset: const Offset(0, -5),
-                ),
-              ],
-            ),
-            child: BottomNavigationBar(
-              currentIndex: _selectedIndex,
-              onTap: (index) {
-                setState(() {
-                  _selectedIndex = index;
-                });
-              },
-              type: BottomNavigationBarType.fixed,
-              backgroundColor: Colors.white,
-              selectedItemColor: const Color(0xFF1E1E1E),
-              unselectedItemColor: Colors.grey[400],
-              selectedLabelStyle: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 12,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontSize: 12,
-              ),
-              items: [
-                BottomNavigationBarItem(
-                  icon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: _selectedIndex == 0
-                          ? Colors.grey[100]
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.home_outlined),
-                  ),
-                  activeIcon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.home),
-                  ),
-                  label: 'Home',
-                ),
-                BottomNavigationBarItem(
-                  icon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: _selectedIndex == 1
-                          ? Colors.grey[100]
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.search_outlined),
-                  ),
-                  activeIcon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.search),
-                  ),
-                  label: 'Search',
-                ),
-                BottomNavigationBarItem(
-                  icon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: _selectedIndex == 2
-                          ? Colors.grey[100]
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.shopping_cart_outlined),
-                  ),
-                  activeIcon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.shopping_cart),
-                  ),
-                  label: 'Cart',
-                ),
-                BottomNavigationBarItem(
-                  icon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: _selectedIndex == 3
-                          ? Colors.grey[100]
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.person_outline),
-                  ),
-                  activeIcon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.person),
-                  ),
-                  label: 'Profile',
-                ),
-              ],
-            ),
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      flexibleSpace: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF1E1E1E), Color(0xFF3E3E3E)],
           ),
         ),
-      );
-    });
+      ),
+      leading: _buildProfileAvatar(),
+      title: _buildAppBarTitle(),
+      actions: [_buildLogoutButton()],
+    );
+  }
+
+  Widget _buildProfileAvatar() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+        ),
+        child: GestureDetector(
+          onTap: () => Get.to(() => ProfilePage()),
+          child: CircleAvatar(
+            backgroundImage: LoginController().LoginUser?.profilePicture != null
+                ? NetworkImage(LoginController().LoginUser!.profilePicture!)
+                : null,
+            backgroundColor: Colors.grey[800],
+            child: LoginController().LoginUser?.profilePicture == null
+                ? const Icon(Icons.person, color: Colors.white70)
+                : null,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAppBarTitle() {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Sneaker Store',
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            fontSize: 24,
+            color: Colors.white,
+            letterSpacing: 1.2,
+          ),
+        ),
+        Text(
+          'Find your perfect pair',
+          style: TextStyle(
+            fontSize: 13,
+            color: Colors.white70,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLogoutButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+        ),
+        child: CircleAvatar(
+          backgroundColor: Colors.grey[800],
+          child: IconButton(
+            onPressed: () => LoginController().logout(),
+            icon: const Icon(Icons.logout, color: Colors.white70),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBanner() {
+    return Container(
+      height: 200,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: PageView(
+        children: [
+          _buildBannerItem(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBannerItem() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF4A90E2), Color(0xFF9013FE)],
+        ),
+      ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned(
+            right: -40,
+            top: -70,
+            child: Transform.rotate(
+              angle: -0.6,
+              child: Image.asset(
+                'assets/images/sneaker.png',
+                height: 340,
+                errorBuilder: (context, error, stackTrace) => const Icon(
+                  Icons.sports_soccer,
+                  size: 100,
+                  color: Colors.white24,
+                ),
+              ),
+            ),
+          ),
+          _buildBannerContent(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBannerContent() {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Text(
+              'New Arrival',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          const Text(
+            'Nike Air Max 2024',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const Text(
+            'Starting from \$199',
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 16,
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Text(
+              'Shop Now',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomNav() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.07),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        selectedItemColor: const Color(0xFF1E1E1E),
+        unselectedItemColor: Colors.grey[400],
+        selectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontSize: 12,
+        ),
+        items: _buildNavItems(),
+      ),
+    );
+  }
+
+  List<BottomNavigationBarItem> _buildNavItems() {
+    return [
+      _buildNavItem(0, Icons.home_outlined, Icons.home, 'Home'),
+      _buildNavItem(1, Icons.search_outlined, Icons.search, 'Search'),
+      _buildNavItem(2, Icons.receipt_long_sharp, Icons.history_edu, 'Orders'),
+      _buildNavItem(3, Icons.person_outline, Icons.person, 'Profile'),
+    ];
+  }
+
+  BottomNavigationBarItem _buildNavItem(
+      int index, IconData icon, IconData activeIcon, String label) {
+    return BottomNavigationBarItem(
+      icon: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: _selectedIndex == index ? Colors.grey[100] : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(icon),
+      ),
+      activeIcon: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(activeIcon),
+      ),
+      label: label,
+    );
   }
 }

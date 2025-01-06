@@ -6,10 +6,11 @@ part of 'order.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Orders _$OrderFromJson(Map<String, dynamic> json) => Orders(
+Orders _$OrdersFromJson(Map<String, dynamic> json) => Orders(
       customerId: json['customerId'] as String?,
       customerName: json['customerName'] as String?,
       phoneNumber: json['phoneNumber'] as String?,
+      image: json['image'] as String?,
       productId: json['productId'] as String?,
       productName: json['productName'] as String?,
       size: json['size'] as String?,
@@ -23,7 +24,7 @@ Orders _$OrderFromJson(Map<String, dynamic> json) => Orders(
       status: json['status'] as String?,
     );
 
-Map<String, dynamic> _$OrderToJson(Orders instance) => <String, dynamic>{
+Map<String, dynamic> _$OrdersToJson(Orders instance) => <String, dynamic>{
       'customerId': instance.customerId,
       'customerName': instance.customerName,
       'phoneNumber': instance.phoneNumber,
@@ -33,6 +34,7 @@ Map<String, dynamic> _$OrderToJson(Orders instance) => <String, dynamic>{
       'quantity': instance.quantity,
       'price': instance.price,
       'totalPrice': instance.totalPrice,
+      'image': instance.image,
       'address': instance.address,
       'orderDate': instance.orderDate?.toIso8601String(),
       'status': instance.status,
