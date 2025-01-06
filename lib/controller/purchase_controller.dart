@@ -2,10 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sneakerstore_client/controller/login_controller.dart';
+
+import '../../pages/home_page.dart';
+import '../model/orders/order.dart';
 import '../model/product/product.dart';
-import '../model/user/user.dart';
-import '../pages/home_page.dart';
 import '../pages/payment_page.dart';
+ // Import model Orders
 
 class PurchaseController extends GetxController {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -22,6 +24,7 @@ class PurchaseController extends GetxController {
   String orderAddress = '';
 
   @override
+
   void onInit() {
     orderCollection = firestore.collection('orders');
     super.onInit();
@@ -82,7 +85,13 @@ class PurchaseController extends GetxController {
   }
 
   Future<void> submitOrder() async {
-    User? loginUser = Get.find<LoginController>().LoginUser;
+    final loginController = Get.find<LoginController>();
+
+    // Kiểm tra đăng nhập
+    if (!loginController.isLoggedIn) {
+      Get.snackbar('Lưu ý', 'Vui lòng đăng nhập để đặt hàng', colorText: Colors.orange);
+      return;
+    }
 
     if (orderAddress.isEmpty) {
       Get.snackbar('Lưu ý', 'Vui lòng nhập địa chỉ giao hàng', colorText: Colors.orange);
@@ -90,25 +99,31 @@ class PurchaseController extends GetxController {
     }
 
     try {
-      await orderCollection.add({
+      final user = loginController.LoginUser!; // Sử dụng ! vì đã kiểm tra null
 
-        'customerId': loginUser?.id,
-        'customerName': loginUser?.name ?? '',
-        'phoneNumber': loginUser?.phonenumber ?? '',
-        'productId': selectedProduct?.id,
-        'productName': selectedProduct?.name ?? '',
-        'image': selectedProduct?.image ?? '',
-        'size': size,
-        'quantity': quantity,
-        'price': selectedProduct?.price ?? 0,
-        'totalPrice': totalPrice,
-        'address': orderAddress,
-        'orderDate': DateTime.now(),
-        'status': 'Sucessful'
+      Orders order = Orders(
+        customerId: user.id,
+        customerName: user.name,
+        phoneNumber: user.phonenumber.toString(),
+        productId: selectedProduct?.id,
+        productName: selectedProduct?.name ?? '',
+        image: selectedProduct?.image ?? '',
+        size: size,
+        quantity: quantity,
+        price: selectedProduct?.price ?? 0,
+        totalPrice: totalPrice,
+        address: orderAddress,
+        orderDate: DateTime.now(),
+        status: 'Pending', // Có thể đổi thành 'Pending' thay vì 'Successful'
+      );
+
+      await orderCollection.add({
+        ...order.toJson(),
+        'orderDate': Timestamp.fromDate(order.orderDate!),
       });
 
       Get.snackbar('Thành công', 'Đặt hàng thành công', colorText: Colors.green);
-      Get.to(HomePage()); // Về trang chủ sau khi đặt hàng
+      Get.offAll(() => const HomePage()); // Sử dụng offAll để xóa stack điều hướng
 
     } catch (e) {
       print(e);

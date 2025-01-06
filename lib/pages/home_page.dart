@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:sneakerstore_client/controller/home_controller.dart';
 import 'package:sneakerstore_client/pages/product_description_page.dart';
+import 'package:sneakerstore_client/pages/profile_page.dart';
 import 'package:sneakerstore_client/widget/drop_down_buton.dart';
 import 'package:sneakerstore_client/widget/multi_select_drop_down.dart';
 import 'package:sneakerstore_client/widget/product_widget.dart';
-import 'login_page.dart';
+
+import '../controller/login_controller.dart';
+import 'orders_history_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,7 +19,29 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
 
+    // Điều hướng sang các trang khác nhau bằng Get.to()
+    switch (index) {
+      case 0:
+        Get.to(() => HomePage());
+        break;
+      case 1:
+        //Get.to(() => SearchPage());
+        break;
+      case 2:
+         Get.to(() =>  OrderHistoryView());
+        break;
+      case 3:
+        Get.to(() =>  ProfilePage());
+        break;
+      default:
+        break;
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return GetBuilder<HomeController>(builder: (ctrl) {
@@ -64,9 +88,7 @@ class _HomePageState extends State<HomePage> {
                   backgroundColor: Colors.grey[100],
                   child: IconButton(
                     onPressed: () {
-                      final box = GetStorage();
-                      box.erase();
-                      Get.offAll(LoginPage());
+                      LoginController().logout();
                     },
                     icon: const Icon(Icons.logout, color: Colors.black54),
                   ),
@@ -144,11 +166,7 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   child: Row(
                                     children: [
-                                      Icon(
-                                        Icons.category_outlined,
-                                        color: Colors.white.withOpacity(0.9),
-                                        size: 20,
-                                      ),
+
                                       const SizedBox(width: 8),
                                       Text(
                                         ctrl.productcategories[index].name ??
@@ -281,11 +299,7 @@ class _HomePageState extends State<HomePage> {
             ),
             child: BottomNavigationBar(
               currentIndex: _selectedIndex,
-              onTap: (index) {
-                setState(() {
-                  _selectedIndex = index;
-                });
-              },
+              onTap:  _onItemTapped,
               type: BottomNavigationBarType.fixed,
               backgroundColor: Colors.white,
               selectedItemColor: const Color(0xFF1E1E1E),
@@ -349,7 +363,7 @@ class _HomePageState extends State<HomePage> {
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.shopping_cart_outlined),
+                    child: const Icon(Icons.receipt_long_sharp),
                   ),
                   activeIcon: Container(
                     padding: const EdgeInsets.all(8),
@@ -357,9 +371,9 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.grey[100],
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.shopping_cart),
+                    child: const Icon(Icons.history_edu),
                   ),
-                  label: 'Cart',
+                  label: 'Orders',
                 ),
                 BottomNavigationBarItem(
                   icon: Container(

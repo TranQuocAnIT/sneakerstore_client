@@ -12,21 +12,31 @@ class DropDownBtn extends StatelessWidget {
     super.key,
     required this.items,
     required this.selectedItemText,
-    required this.onSelected
+    required this.onSelected,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Center( // Thêm widget Center để căn giữa
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: Colors.grey.shade300,
+          width: 1,
+        ),
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 4),
         child: DropdownButtonHideUnderline(
           child: DropdownButton2<String>(
             isExpanded: true,
             hint: Text(
               selectedItemText,
-              style: const TextStyle(
-                fontSize: 14, // Giảm kích thước font để đồng nhất
-                color: Colors.black54, // Màu text hint giống với TextField
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w500,
               ),
             ),
             items: items.map((String item) => DropdownMenuItem<String>(
@@ -35,7 +45,7 @@ class DropDownBtn extends StatelessWidget {
                 item,
                 style: const TextStyle(
                   fontSize: 14,
-                  color: Colors.black,
+                  fontWeight: FontWeight.w500,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -45,13 +55,41 @@ class DropDownBtn extends StatelessWidget {
               onSelected(value);
             },
             buttonStyleData: ButtonStyleData(
-
               padding: const EdgeInsets.symmetric(horizontal: 16),
-
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              elevation: 0,
+            ),
+            dropdownStyleData: DropdownStyleData(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 1,
+                    blurRadius: 8,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
+              offset: const Offset(0, -4),
+              scrollbarTheme: ScrollbarThemeData(
+                radius: const Radius.circular(40),
+                thickness: MaterialStateProperty.all(6),
+                thumbVisibility: MaterialStateProperty.all(true),
+              ),
             ),
             menuItemStyleData: const MenuItemStyleData(
               height: 40,
-
+              padding: EdgeInsets.symmetric(horizontal: 16),
+            ),
+            iconStyleData: IconStyleData(
+              icon: Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: Colors.grey.shade600,
+              ),
+              iconSize: 24,
             ),
           ),
         ),
