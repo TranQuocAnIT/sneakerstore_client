@@ -187,30 +187,30 @@ class PaymentPage extends StatelessWidget {
             ),
           ],
         ),
-        child: ElevatedButton(
-          onPressed: ctrl.submitOrder,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.black,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.shopping_bag_outlined),
-              const SizedBox(width: 10),
-              Text(
-                'Pay \$${ctrl.totalPrice}',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
+        // child: ElevatedButton(
+        //   onPressed: ctrl.submitOrder,
+        //   style: ElevatedButton.styleFrom(
+        //     backgroundColor: Colors.black,
+        //     padding: const EdgeInsets.symmetric(vertical: 16),
+        //     shape: RoundedRectangleBorder(
+        //       borderRadius: BorderRadius.circular(15),
+        //     ),
+        //   ),
+        //   child: Row(
+        //     mainAxisAlignment: MainAxisAlignment.center,
+        //     children: [
+        //       const Icon(Icons.shopping_bag_outlined),
+        //       const SizedBox(width: 10),
+        //       Text(
+        //         'Pay \$${ctrl.totalPrice}',
+        //         style: const TextStyle(
+        //           fontSize: 18,
+        //           fontWeight: FontWeight.bold,
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // ),
       ),
     );
   }

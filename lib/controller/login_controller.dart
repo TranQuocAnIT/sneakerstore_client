@@ -70,6 +70,7 @@ class LoginController extends GetxController {
         signupNameCtrl.clear();
         signupPasswordCtrl.clear();
         otpController.clear();
+        otpFieldShown = false;
       }else
       {
         Get.snackbar('Lổi ' , 'mã OPT không chính xác', colorText: Colors.green);
@@ -96,7 +97,7 @@ class LoginController extends GetxController {
       {
         otpFieldShown = true;
         otpSend = otp;
-        Get.snackbar('Thành công ' , 'Mã OTP đã được gửi đi', colorText: Colors.green);
+        Get.snackbar('Thành công ' , 'Mã OTP của bạn là $otp ', colorText: Colors.green);
       }else{
         Get.snackbar('Lổi' , 'Mã OTP chưa được gửi đi', colorText: Colors.red);
       }

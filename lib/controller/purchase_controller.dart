@@ -15,6 +15,8 @@ class PurchaseController extends GetxController {
   late CollectionReference orderCollection;
   TextEditingController addressController = TextEditingController();
   late CollectionReference commentCollection;
+  var comments = <Comment>[].obs; // List comments
+  String? productId;
   // Product details
   Product? selectedProduct;
   String size = '';
@@ -23,18 +25,20 @@ class PurchaseController extends GetxController {
   String image = '';
   // Order information
   String orderAddress = '';
-  List<Comment> comments = [];
-  @override
 
+  @override
+  String? selectedproductid;
   Future<void> onInit() async {
     orderCollection = firestore.collection('orders');
     commentCollection = firestore.collection('comments');
     super.onInit();
-    await fetchComments();
+
   }
 
   void initProduct(Product product) {
     selectedProduct = product;
+    productId = product.id;
+    fetchComments();
     updateTotalPrice();
     update();
   }
@@ -117,7 +121,7 @@ class PurchaseController extends GetxController {
         totalPrice: totalPrice,
         address: orderAddress,
         orderDate: DateTime.now(),
-        status: 'Order successful', // Có thể đổi thành 'Pending' thay vì 'Successful'
+        status: 'Đã đặt hàng', // Có thể đổi thành 'Pending' thay vì 'Successful'
       );
 
       await orderCollection.add({
@@ -215,21 +219,21 @@ class PurchaseController extends GetxController {
       );
     }
   }
-  fetchComments() async {
-    try {
-      QuerySnapshot commentSnapshot = await commentCollection.get();
-      final List<Comment> retrivedComments = commentSnapshot.docs
-          .map((doc) =>
-          Comment.fromJson(doc.data() as Map<String, dynamic>))
-          .toList();
-      comments.clear();
-      comments.assignAll(retrivedComments);
+  void fetchComments() async {
+    if (productId == null) return;
 
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('comments')
+          .where('productId', isEqualTo: productId)
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      comments.value = querySnapshot.docs
+          .map((doc) => Comment.fromJson(doc.data() as Map<String, dynamic>))
+          .toList();
     } catch (e) {
-      Get.snackbar('Lổi', e.toString(), colorText: Colors.red);
-      print(e);
-    } finally {
-      update();
+      print('Error fetching comments: $e');
     }
   }
 }

@@ -229,6 +229,7 @@ class ProductDescriptionPage extends StatelessWidget {
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: ctrl.comments.length,
                           itemBuilder: (context, index) {
+                            final comment = ctrl.comments[index];
                             return Container(
                               margin: const EdgeInsets.only(bottom: 16),
                               padding: const EdgeInsets.all(16),
@@ -242,33 +243,23 @@ class ProductDescriptionPage extends StatelessWidget {
                                   Row(
                                     children: [
                                       CircleAvatar(
-                                        child: Image.network(
-                                          'https://cdn-icons-png.flaticon.com/128/16683/16683451.png',
-                                          fit: BoxFit.cover,
+                                        backgroundImage: NetworkImage(
+                                          comment.image ??
+                                              'https://cdn-icons-png.flaticon.com/128/16683/16683451.png',
                                         ),
-
                                       ),
                                       const SizedBox(width: 12),
                                       Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            ctrl.comments[index].customerName ?? '' ,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                            comment.customerName ?? 'Anonymous',
+                                            style: const TextStyle(fontWeight: FontWeight.bold),
                                           ),
-                                          Row(
-                                            children: List.generate(
-                                              5,
-                                                  (starIndex) => Icon(
-                                                Icons.star,
-                                                size: 16,
-                                                color: starIndex < (4 - index)
-                                                    ? Colors.amber
-                                                    : Colors.grey[300],
-                                              ),
-                                            ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            '${comment.createdAt?.toLocal() ?? DateTime.now()}',
+                                            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                                           ),
                                         ],
                                       ),
@@ -276,17 +267,15 @@ class ProductDescriptionPage extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    ctrl.comments[index].message?? '' ,
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      height: 1.5,
-                                    ),
+                                    comment.message ?? 'No comment message',
+                                    style: TextStyle(color: Colors.grey[600], height: 1.5),
                                   ),
                                 ],
                               ),
                             );
                           },
                         ),
+
                         TextButton(
                           onPressed: () {},
                           child: const Text('View All Reviews'),

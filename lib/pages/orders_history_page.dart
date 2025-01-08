@@ -11,6 +11,7 @@ class OrderHistoryView extends StatelessWidget {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   OrderHistoryView({Key? key}) : super(key: key);
+
   void _showCommentDialog(String orderId, Map<String, dynamic> orderData) {
     final TextEditingController messageController = TextEditingController();
 
@@ -61,11 +62,18 @@ class OrderHistoryView extends StatelessWidget {
               );
             },
             child: const Text('Gửi đánh giá'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
           ),
         ],
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -264,36 +272,34 @@ class OrderHistoryView extends StatelessWidget {
                             Row(
                               children: [
                                 Expanded(
-                                  child: ElevatedButton.icon(
+                                  child: ElevatedButton(
                                     onPressed: () {
-                                      Get.find<PurchaseController>().cancelOrder(order.id);
+                                      // Get.find<PurchaseController>().cancelOrder(order.id);
                                     },
-                                    icon: const Icon(Icons.cancel_outlined, size: 20),
-                                    label: const Text('Hủy đơn hàng'),
+                                    child: const Text('Hủy đơn hàng'),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.red[400],
                                       foregroundColor: Colors.white,
                                       padding: const EdgeInsets.symmetric(vertical: 12),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
+                                        borderRadius: BorderRadius.circular(16),
                                       ),
                                     ),
                                   ),
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
-                                  child: ElevatedButton.icon(
+                                  child: ElevatedButton(
                                     onPressed: () {
-                                      Get.find<PurchaseController>().confirmOrderReceived(order.id);
+                                      // Get.find<PurchaseController>().confirmOrderReceived(order.id);
                                     },
-                                    icon: const Icon(Icons.check_circle_outline, size: 20),
-                                    label: const Text('Đã nhận hàng'),
+                                    child: const Text('Đã nhận hàng'),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.green,
                                       foregroundColor: Colors.white,
                                       padding: const EdgeInsets.symmetric(vertical: 12),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
+                                        borderRadius: BorderRadius.circular(16),
                                       ),
                                     ),
                                   ),
@@ -302,22 +308,17 @@ class OrderHistoryView extends StatelessWidget {
                             ),
                           ] else if (data['status'] == 'Đã nhận hàng' && !(data['hasComment'] ?? false)) ...[
                             const SizedBox(height: 16),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: () => _showCommentDialog(order.id, {
-                                  ...data,
-                                  'id': order.id,
-                                }),
-                                icon: const Icon(Icons.rate_review_outlined, size: 20),
-                                label: const Text('Đánh giá sản phẩm'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
+                            ElevatedButton(
+                              onPressed: () {
+                                _showCommentDialog(order.id, data);
+                              },
+                              child: const Text('Đánh giá sản phẩm'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
                               ),
                             ),
@@ -338,19 +339,12 @@ class OrderHistoryView extends StatelessWidget {
   Widget _buildInfoRow(IconData icon, String text) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 16,
-          color: Colors.grey[600],
-        ),
+        Icon(icon, size: 20, color: Colors.black),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             text,
-            style: TextStyle(
-              color: Colors.grey[700],
-              height: 1.5,
-            ),
+            style: const TextStyle(fontSize: 16),
           ),
         ),
       ],
@@ -359,10 +353,12 @@ class OrderHistoryView extends StatelessWidget {
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case 'Đã đặt hàng':
-        return Colors.orange;
       case 'Đã nhận hàng':
         return Colors.green;
+      case 'Đã đặt hàng':
+        return Colors.blue;
+      case 'Đang giao':
+        return Colors.orange;
       default:
         return Colors.grey;
     }
@@ -370,12 +366,14 @@ class OrderHistoryView extends StatelessWidget {
 
   IconData _getStatusIcon(String status) {
     switch (status) {
-      case 'Đã đặt hàng':
-        return Icons.pending_outlined;
       case 'Đã nhận hàng':
         return Icons.check_circle_outline;
+      case 'Đã đặt hàng':
+        return Icons.shopping_cart_outlined;
+      case 'Đang giao':
+        return Icons.local_shipping_outlined;
       default:
-        return Icons.info_outline;
+        return Icons.error_outline;
     }
   }
 }

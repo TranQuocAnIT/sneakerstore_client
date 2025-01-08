@@ -108,18 +108,22 @@ class ProfilePage extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () => controller.updateUserProfile(user),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                        onPressed: ()
+                          => controller.updateUserProfile(user), // Gọi hàm đăng nhập với mật khẩu
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
-                      ),
-                      child: const Text(
-                        'Update Profile',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ),
+                        child: const Text(
+                          'Update Profile',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      )
                   ),
                 ],
               );
